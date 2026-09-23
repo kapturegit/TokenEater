@@ -13,6 +13,12 @@ final class MockNotificationService: NotificationServiceProtocol {
         extraUsage: ExtraUsage?,
         toggles: NotificationToggles
     )?
+    var lastCodexEvaluation: (
+        session: MetricSnapshot,
+        weekly: MetricSnapshot,
+        toggles: NotificationToggles
+    )?
+    var codexEvaluationCount = 0
     var lastTokenExpiredFire: Bool?
     var lastReminderSchedule: (
         sessionResetsAt: Date?,
@@ -39,6 +45,15 @@ final class MockNotificationService: NotificationServiceProtocol {
         toggles: NotificationToggles
     ) {
         lastEvaluation = (fiveHour, sevenDay, sonnet, fable, sessionPacing, weeklyPacing, extraUsage, toggles)
+    }
+
+    func evaluateCodex(
+        session: MetricSnapshot,
+        weekly: MetricSnapshot,
+        toggles: NotificationToggles
+    ) {
+        codexEvaluationCount += 1
+        lastCodexEvaluation = (session, weekly, toggles)
     }
 
     func notifyTokenExpired(toggle: Bool) {

@@ -25,6 +25,10 @@ final class NotificationSettingsStore: ObservableObject {
     @Published var trackFable: Bool {
         didSet { UserDefaults.standard.set(trackFable, forKey: "notifTrackFable") }
     }
+    /// Codex (second vendor) threshold alerts.
+    @Published var trackCodex: Bool {
+        didSet { UserDefaults.standard.set(trackCodex, forKey: "notifTrackCodex") }
+    }
     /// When false, only escalations (orange / red) fire. Recovery to green stays silent.
     @Published var sendRecovery: Bool {
         didSet { UserDefaults.standard.set(sendRecovery, forKey: "notifSendRecovery") }
@@ -78,6 +82,7 @@ final class NotificationSettingsStore: ObservableObject {
         self.trackWeekly = SettingsDefaults.bool(key: "notifTrackWeekly", default: true)
         self.trackSonnet = SettingsDefaults.bool(key: "notifTrackSonnet", default: false)
         self.trackFable = SettingsDefaults.bool(key: "notifTrackFable", default: true)
+        self.trackCodex = SettingsDefaults.bool(key: "notifTrackCodex", default: true)
         self.sendRecovery = SettingsDefaults.bool(key: "notifSendRecovery", default: true)
         self.pacingHot = SettingsDefaults.bool(key: "notifPacingHot", default: true)
         self.pacingWarning = SettingsDefaults.bool(key: "notifPacingWarning", default: false)

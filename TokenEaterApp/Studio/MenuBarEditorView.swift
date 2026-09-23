@@ -16,6 +16,7 @@ import SwiftUI
 struct MenuBarEditorView<PreviewHeader: View, PreviewFooter: View>: View {
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var usageStore: UsageStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
 
     @State private var selectedSegmentID: UUID?
     @State private var showSaveDialog = false
@@ -235,6 +236,12 @@ struct MenuBarEditorView<PreviewHeader: View, PreviewFooter: View>: View {
                 addButton(for: .sessionReset)
                 addButton(for: .serviceStatus)
             }
+            // Its own section rather than mixed into the metrics: two "Session
+            // (5h)" entries in one list would be indistinguishable.
+            Section(String(localized: "menuBar.editor.family.codex")) {
+                addButton(for: .codexSession)
+                addButton(for: .codexWeekly)
+            }
         }
     }
 
@@ -260,6 +267,9 @@ struct MenuBarEditorView<PreviewHeader: View, PreviewFooter: View>: View {
         switch kind {
         case .fable, .fablePacing: return usageStore.hasFable
         case .extraCredits: return usageStore.hasExtraCredits
+        // "Unavailable" here covers both halves of the Codex gate: the feature
+        // is off, or it is on but there is no usable login yet.
+        case .codexSession, .codexWeekly: return codexUsageStore.isEnabled && codexUsageStore.hasData
         default: return true
         }
     }
@@ -428,6 +438,7 @@ private struct MenuBarLivePreview: View {
     @EnvironmentObject private var themeStore: ThemeStore
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var vendorStatusStore: VendorStatusStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
 
     @Binding var selectedSegmentID: UUID?
 
@@ -435,7 +446,7 @@ private struct MenuBarLivePreview: View {
 
     var body: some View {
         let data = MenuBarRenderer.RenderData.live(
-            usage: usageStore, theme: themeStore, settings: settingsStore, vendor: vendorStatusStore
+            usage: usageStore, codex: codexUsageStore, theme: themeStore, settings: settingsStore, vendor: vendorStatusStore
         )
         let rendered = MenuBarRenderer.renderWithHitRects(data)
         let w = rendered.image.size.width * scale

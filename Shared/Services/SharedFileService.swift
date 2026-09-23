@@ -118,6 +118,11 @@ final class SharedFileService: SharedFileServiceProtocol, @unchecked Sendable {
     private struct SharedData: Codable {
         var cachedUsage: CachedUsage?
         var lastSyncDate: Date?
+        /// Codex (ChatGPT) usage snapshot. Optional and written by its own
+        /// update path, so a build (or a user) that never touches Codex leaves
+        /// the key absent and older widget builds decode the rest unchanged.
+        var cachedCodexUsage: CachedCodexUsage?
+        var codexLastSyncDate: Date?
         var theme: ThemeColors?
         var thresholds: UsageThresholds?
         var smartColorEnabled: Bool?
@@ -209,6 +214,14 @@ final class SharedFileService: SharedFileServiceProtocol, @unchecked Sendable {
         load().lastSyncDate
     }
 
+    var cachedCodexUsage: CachedCodexUsage? {
+        load().cachedCodexUsage
+    }
+
+    var codexLastSyncDate: Date? {
+        load().codexLastSyncDate
+    }
+
     var theme: ThemeColors {
         load().theme ?? .default
     }
@@ -233,6 +246,13 @@ final class SharedFileService: SharedFileServiceProtocol, @unchecked Sendable {
         var data = loadFresh()
         data.cachedUsage = usage
         data.lastSyncDate = syncDate
+        save(data)
+    }
+
+    func updateCodexAfterSync(usage: CachedCodexUsage, syncDate: Date) {
+        var data = loadFresh()
+        data.cachedCodexUsage = usage
+        data.codexLastSyncDate = syncDate
         save(data)
     }
 

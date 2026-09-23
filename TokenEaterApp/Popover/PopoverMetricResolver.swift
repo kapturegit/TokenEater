@@ -19,7 +19,7 @@ enum PopoverMetricResolver {
         let windowDuration: TimeInterval
     }
 
-    static func usageSnapshot(for kind: PopoverElementKind, usage: UsageStore) -> UsageSnapshot? {
+    static func usageSnapshot(for kind: PopoverElementKind, usage: UsageStore, codex: CodexUsageStore) -> UsageSnapshot? {
         switch kind {
         case .session:
             return UsageSnapshot(
@@ -49,6 +49,22 @@ enum PopoverMetricResolver {
                 pct: usage.fablePct,
                 resetDate: usage.lastUsage?.sevenDayFable?.resetsAtDate
             )
+        case .codexSession:
+            return UsageSnapshot(
+                label: String(localized: "codex.metric.session.short"),
+                pct: codex.sessionPct,
+                resetDate: codex.sessionResetDate,
+                resetText: codex.sessionReset,
+                windowDuration: 5 * 3600
+            )
+        case .codexWeekly:
+            return UsageSnapshot(
+                label: String(localized: "codex.metric.weekly.short"),
+                pct: codex.weeklyPct,
+                resetDate: codex.weeklyResetDate,
+                resetText: codex.weeklyReset,
+                windowDuration: 7 * 86_400
+            )
         case .extraCredits:
             // No reset window -> GaugeColorResolver falls back to threshold
             // coloring (windowDuration == 0), same contract as before.
@@ -76,9 +92,13 @@ enum PopoverMetricResolver {
     /// Presence gating: elements whose data doesn't exist on this account (or
     /// right now) render nothing and their row recompacts, matching the old
     /// satellite behavior.
-    static func isAvailable(_ kind: PopoverElementKind, usage: UsageStore) -> Bool {
+    static func isAvailable(_ kind: PopoverElementKind, usage: UsageStore, codex: CodexUsageStore) -> Bool {
         switch kind {
         case .fable: return usage.hasFable
+        // Codex elements only exist once the user turned the second vendor on
+        // AND we have a snapshot: an enabled-but-unconfigured Codex would
+        // otherwise show a permanent 0% gauge.
+        case .codexSession, .codexWeekly: return codex.isEnabled && codex.hasData
         case .extraCredits: return usage.hasExtraCredits
         // Pacing follows the 3-state model (absent / idle / active): available
         // when the underlying bucket is PRESENT, so an idle bucket (present but

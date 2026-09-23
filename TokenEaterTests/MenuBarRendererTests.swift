@@ -128,7 +128,12 @@ struct MenuBarOutageBadgeTests {
             outageHealth: outageHealth,
             nextPollSeconds: nextPollSeconds,
             extraCreditsPct: 0,
-            hasExtraCredits: false
+            hasExtraCredits: false,
+            codexSessionPct: 0,
+            codexWeeklyPct: 0,
+            codexSessionResetDate: nil,
+            codexWeeklyResetDate: nil,
+            hasCodex: false
         )
     }
 
@@ -298,7 +303,9 @@ struct MenuBarExtraCreditsRenderTests {
             pacingMargin: 10,
             fablePct: 0, hasFable: false, fableResetDate: nil,
             outageActive: false, outageHealth: .healthy, nextPollSeconds: nil,
-            extraCreditsPct: extraCreditsPct, hasExtraCredits: hasExtraCredits
+            extraCreditsPct: extraCreditsPct, hasExtraCredits: hasExtraCredits,
+            codexSessionPct: 0, codexWeeklyPct: 0,
+            codexSessionResetDate: nil, codexWeeklyResetDate: nil, hasCodex: false
         )
     }
 
@@ -356,7 +363,9 @@ struct MenuBarFablePacingRenderTests {
             pacingMargin: 10,
             fablePct: 0, hasFable: hasFable, fableResetDate: nil,
             outageActive: false, outageHealth: .healthy, nextPollSeconds: nil,
-            extraCreditsPct: 0, hasExtraCredits: false
+            extraCreditsPct: 0, hasExtraCredits: false,
+            codexSessionPct: 0, codexWeeklyPct: 0,
+            codexSessionResetDate: nil, codexWeeklyResetDate: nil, hasCodex: false
         )
     }
 

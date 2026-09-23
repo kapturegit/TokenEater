@@ -9,25 +9,26 @@ import SwiftUI
 
 struct PopoverElementCellView: View {
     @EnvironmentObject private var usageStore: UsageStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
 
     let element: PopoverElement
 
     var body: some View {
         switch element.style {
         case .gaugeRing:
-            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore) {
+            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore, codex: codexUsageStore) {
                 GaugeRingCell(snapshot: snapshot, width: element.effectiveWidth, showReset: element.options.showReset)
             }
         case .chip:
-            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore) {
+            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore, codex: codexUsageStore) {
                 ChipCell(snapshot: snapshot, width: element.effectiveWidth, showReset: element.options.showReset)
             }
         case .arc:
-            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore) {
+            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore, codex: codexUsageStore) {
                 ArcCell(snapshot: snapshot, content: element.options.content)
             }
         case .bigText:
-            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore) {
+            if let snapshot = PopoverMetricResolver.usageSnapshot(for: element.kind, usage: usageStore, codex: codexUsageStore) {
                 BigTextCell(snapshot: snapshot, width: element.effectiveWidth, content: element.options.content)
             }
         case .paceBar:

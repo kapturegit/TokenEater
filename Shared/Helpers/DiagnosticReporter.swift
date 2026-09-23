@@ -9,11 +9,20 @@ enum DiagnosticReporter {
 
     /// Public entry point.
     @MainActor
-    static func makeReport(usageStore: UsageStore, settingsStore: SettingsStore) -> String {
+    /// `codexStore` is optional so the report keeps working for the Claude-only
+    /// call sites (and every existing test) unchanged. When present, a short
+    /// Codex section is appended - state only, never the account e-mail or the
+    /// credentials path, both of which carry PII.
+    static func makeReport(
+        usageStore: UsageStore,
+        settingsStore: SettingsStore,
+        codexStore: CodexUsageStore? = nil
+    ) -> String {
         let app = appSection()
         let system = systemSection()
         let state = stateSection(usageStore: usageStore, settingsStore: settingsStore)
         let apiError = apiErrorSection(usageStore.lastAPIError)
+        let codex = codexSection(codexStore)
 
         return """
         ## TokenEater diagnostic
@@ -24,7 +33,30 @@ enum DiagnosticReporter {
 
         \(state)
 
-        \(apiError)
+        \(apiError)\(codex)
+        """
+    }
+
+    @MainActor
+    private static func codexSection(_ store: CodexUsageStore?) -> String {
+        guard let store, store.isEnabled else { return "" }
+        let auth: String
+        switch store.authState {
+        case .ready:        auth = "ready"
+        case .expired:      auth = "expired"
+        case .notInstalled: auth = "notInstalled"
+        case .apiKeyMode:   auth = "apiKeyMode"
+        case .unreadable:   auth = "unreadable"
+        }
+        let lastUpdate = formatDate(store.lastUpdate, relative: true) ?? "never"
+        return """
+
+
+        **Codex**
+        - Auth state: \(auth)
+        - Error state: \(errorStateName(store.errorState))
+        - Plan: \(String(describing: store.plan))
+        - Last successful update: \(lastUpdate)
         """
     }
 

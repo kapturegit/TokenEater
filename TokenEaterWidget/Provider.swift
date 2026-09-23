@@ -32,9 +32,21 @@ struct StaticProvider: TimelineProvider {
         // instance; invalidate it too so workweek / theme changes propagate.
         WidgetTheme.invalidate()
         logger.info("fetchEntry: fileURL=\(self.sharedFile.fileURL.path, privacy: .public), isConfigured=\(self.sharedFile.isConfigured)")
+
+        // Read once, pass to every entry below: a Codex-only user has no
+        // Claude snapshot, and the unconfigured path must still carry the
+        // Codex numbers or their widget would show "not connected" while the
+        // app is happily tracking Codex.
+        let codex = sharedFile.cachedCodexUsage?.usage
+
         guard sharedFile.isConfigured else {
             logger.error("Widget: not configured")
-            return .unconfigured
+            return UsageEntry(
+                date: Date(),
+                usage: nil,
+                error: String(localized: "error.notoken"),
+                codexUsage: codex
+            )
         }
 
         if let cached = sharedFile.cachedUsage {
@@ -50,10 +62,11 @@ struct StaticProvider: TimelineProvider {
                 usage: cached.usage,
                 isStale: isStale,
                 lastSync: lastSync,
-                lastWeekDailyTotals: sharedFile.lastWeekDailyTotals
+                lastWeekDailyTotals: sharedFile.lastWeekDailyTotals,
+                codexUsage: codex
             )
         }
 
-        return UsageEntry(date: Date(), usage: nil, error: String(localized: "error.nodata"))
+        return UsageEntry(date: Date(), usage: nil, error: String(localized: "error.nodata"), codexUsage: codex)
     }
 }

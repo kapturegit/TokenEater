@@ -15,7 +15,7 @@ struct NotificationServiceTests {
     private func toggles(sendRecovery: Bool = true) -> NotificationToggles {
         NotificationToggles(
             masterEnabled: true,
-            trackFiveHour: true, trackWeekly: true, trackSonnet: false, trackFable: false,
+            trackFiveHour: true, trackWeekly: true, trackSonnet: false, trackFable: false, trackCodex: true,
             sendRecovery: sendRecovery, pacingHot: false, pacingWarning: false,
             resetReminderSession: false, resetReminderWeekly: false,
             resetReminderSessionOffsetMinutes: 15, resetReminderWeeklyOffsetMinutes: 60,

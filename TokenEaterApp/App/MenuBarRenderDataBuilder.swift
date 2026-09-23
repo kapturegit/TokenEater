@@ -7,6 +7,7 @@ extension MenuBarRenderer.RenderData {
     /// render the exact same pixels for the current composition.
     static func live(
         usage: UsageStore,
+        codex: CodexUsageStore,
         theme: ThemeStore,
         settings: SettingsStore,
         vendor: VendorStatusStore
@@ -49,7 +50,12 @@ extension MenuBarRenderer.RenderData {
             outageHealth: vendor.worstHealth,
             nextPollSeconds: vendor.nextPollDate.map { max(0, Int(ceil($0.timeIntervalSinceNow))) },
             extraCreditsPct: usage.extraCreditsPct,
-            hasExtraCredits: usage.hasExtraCredits
+            hasExtraCredits: usage.hasExtraCredits,
+            codexSessionPct: codex.sessionPct,
+            codexWeeklyPct: codex.weeklyPct,
+            codexSessionResetDate: codex.sessionResetDate,
+            codexWeeklyResetDate: codex.weeklyResetDate,
+            hasCodex: settings.codexEnabled && codex.hasData
         )
     }
 }

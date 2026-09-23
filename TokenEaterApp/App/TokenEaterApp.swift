@@ -4,6 +4,7 @@ import Combine
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var usageStore: UsageStore!
+    var codexUsageStore: CodexUsageStore!
     var themeStore: ThemeStore!
     var settingsStore: SettingsStore!
     var updateStore: UpdateStore!
@@ -38,6 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         statusBarController = StatusBarController(
             usageStore: usageStore,
+            codexUsageStore: codexUsageStore,
             themeStore: themeStore,
             settingsStore: settingsStore,
             updateStore: updateStore,
@@ -92,6 +94,7 @@ struct TokenEaterApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     private let usageStore: UsageStore
+    private let codexUsageStore: CodexUsageStore
     private let themeStore: ThemeStore
     private let settingsStore: SettingsStore
     private let updateStore: UpdateStore
@@ -117,6 +120,7 @@ struct TokenEaterApp: App {
         LegacyHelperCleanupService().migratePrefsIfNeeded()
 
         self.usageStore = UsageStore()
+        self.codexUsageStore = CodexUsageStore()
         self.themeStore = ThemeStore()
         self.settingsStore = SettingsStore()
         self.updateStore = UpdateStore()
@@ -125,6 +129,7 @@ struct TokenEaterApp: App {
 
         NotificationService().setupDelegate()
         appDelegate.usageStore = usageStore
+        appDelegate.codexUsageStore = codexUsageStore
         appDelegate.themeStore = themeStore
         appDelegate.settingsStore = settingsStore
         appDelegate.updateStore = updateStore

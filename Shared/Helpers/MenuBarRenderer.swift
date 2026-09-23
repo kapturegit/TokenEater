@@ -53,6 +53,15 @@ enum MenuBarRenderer {
         let nextPollSeconds: Int?
         let extraCreditsPct: Int
         let hasExtraCredits: Bool
+        // Codex (second vendor). `hasCodex` folds the settings toggle and the
+        // presence of a snapshot into one gate, so a user who never enabled
+        // Codex - or enabled it but has no login - simply never sees these
+        // segments and the row recompacts around them.
+        let codexSessionPct: Int
+        let codexWeeklyPct: Int
+        let codexSessionResetDate: Date?
+        let codexWeeklyResetDate: Date?
+        let hasCodex: Bool
     }
 
     private static var cachedImage: NSImage?
@@ -351,6 +360,7 @@ enum MenuBarRenderer {
         switch kind {
         case .fable: return data.hasFable
         case .extraCredits: return data.hasExtraCredits
+        case .codexSession, .codexWeekly: return data.hasCodex
         // Pacing segments follow a 3-state model: absent (bucket missing) ->
         // drawn nothing; idle (bucket present, no active window yet) -> a muted
         // "-" placeholder from `pacingContent`; active -> shape + delta. So
@@ -535,6 +545,8 @@ enum MenuBarRenderer {
         case .sonnet: return data.sonnetPct
         case .fable: return data.fablePct
         case .extraCredits: return data.extraCreditsPct
+        case .codexSession: return data.codexSessionPct
+        case .codexWeekly: return data.codexWeeklyPct
         default: return 0
         }
     }
@@ -546,6 +558,10 @@ enum MenuBarRenderer {
         case .sonnet: return MetricID.sonnet.shortLabel
         case .fable: return MetricID.fable.shortLabel
         case .extraCredits: return MetricID.extraCredits.shortLabel
+        // "cx" prefix rather than reusing "5h"/"7d": with both vendors pinned
+        // the menu bar would otherwise show two identical labels.
+        case .codexSession: return "cx5h"
+        case .codexWeekly: return "cx7d"
         default: return ""
         }
     }
@@ -556,14 +572,16 @@ enum MenuBarRenderer {
         case .weekly: return data.sevenDayResetDate
         case .sonnet: return data.sonnetResetDate
         case .fable: return data.fableResetDate
+        case .codexSession: return data.codexSessionResetDate
+        case .codexWeekly: return data.codexWeeklyResetDate
         default: return nil  // extraCredits: no reset window -> static threshold
         }
     }
 
     private static func usageWindow(_ kind: MenuBarSegmentKind) -> TimeInterval {
         switch kind {
-        case .session: return 5 * 3600
-        case .weekly, .sonnet, .fable: return 7 * 86_400
+        case .session, .codexSession: return 5 * 3600
+        case .weekly, .sonnet, .fable, .codexWeekly: return 7 * 86_400
         default: return 0  // extraCredits: windowless
         }
     }

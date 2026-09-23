@@ -16,6 +16,8 @@ import Foundation
 enum MenuBarSegmentKind: String, Codable, CaseIterable, Identifiable {
     // Usage metrics (percentage)
     case session, weekly, sonnet, fable, extraCredits
+    // Codex (ChatGPT) usage: the 5h and weekly windows of the second vendor.
+    case codexSession, codexWeekly
     // Pacing (delta vs linear pace)
     case sessionPacing, weeklyPacing, fablePacing
     // Status / time
@@ -27,7 +29,7 @@ enum MenuBarSegmentKind: String, Codable, CaseIterable, Identifiable {
 
     var family: Family {
         switch self {
-        case .session, .weekly, .sonnet, .fable, .extraCredits:
+        case .session, .weekly, .sonnet, .fable, .extraCredits, .codexSession, .codexWeekly:
             return .usage
         case .sessionPacing, .weeklyPacing, .fablePacing:
             return .pacing
@@ -55,6 +57,14 @@ enum MenuBarSegmentKind: String, Codable, CaseIterable, Identifiable {
     /// account lacks the metric, matching the pre-5.10 menu bar.
     var isPresenceGated: Bool {
         self == .fable || self == .extraCredits || self == .fablePacing
+            || self == .codexSession || self == .codexWeekly
+    }
+
+    /// True for the segments that read from `CodexUsageStore` rather than
+    /// `UsageStore`. The editor uses it to grey them out (with a "turn Codex
+    /// on" hint) instead of silently offering a segment that renders nothing.
+    var isCodex: Bool {
+        self == .codexSession || self == .codexWeekly
     }
 }
 
@@ -256,6 +266,7 @@ extension MenuBarSegmentKind {
         case .sonnet: return "quote.opening"
         case .fable: return "books.vertical.fill"
         case .extraCredits: return "creditcard.fill"
+        case .codexSession, .codexWeekly: return "chevron.left.forwardslash.chevron.right"
         case .sessionPacing, .weeklyPacing, .fablePacing: return "speedometer"
         case .sessionReset: return "clock.arrow.circlepath"
         case .serviceStatus: return "dot.radiowaves.left.and.right"

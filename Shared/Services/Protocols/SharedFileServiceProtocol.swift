@@ -5,6 +5,10 @@ protocol SharedFileServiceProtocol: Sendable {
     var isConfigured: Bool { get }
     var cachedUsage: CachedUsage? { get }
     var lastSyncDate: Date? { get }
+    /// Last Codex snapshot. Separate from `cachedUsage` so a Codex-only or
+    /// Claude-only user never has the other vendor's staleness bleed in.
+    var cachedCodexUsage: CachedCodexUsage? { get }
+    var codexLastSyncDate: Date? { get }
     var theme: ThemeColors { get }
     var thresholds: UsageThresholds { get }
     var smartColorEnabled: Bool { get }
@@ -15,6 +19,7 @@ protocol SharedFileServiceProtocol: Sendable {
 
     func invalidateCache()
     func updateAfterSync(usage: CachedUsage, syncDate: Date)
+    func updateCodexAfterSync(usage: CachedCodexUsage, syncDate: Date)
     func updateTheme(_ theme: ThemeColors, thresholds: UsageThresholds)
     func updateSmartColorEnabled(_ enabled: Bool)
     func updateSmartColorProfile(_ profile: SmartColorProfile)

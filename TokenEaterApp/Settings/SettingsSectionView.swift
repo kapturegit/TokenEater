@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsSectionView: View {
     @EnvironmentObject private var usageStore: UsageStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var themeStore: ThemeStore
     @EnvironmentObject private var updateStore: UpdateStore
@@ -82,12 +83,17 @@ struct SettingsSectionView: View {
                 }
             }
 
+            // Codex account (second vendor). Sits right under Connection
+            // because it IS a connection - the only difference is which
+            // vendor's credentials it rides on.
+            codexCard
+
             // Update (placed right under Connection so the user spots a
             // pending version straight away).
             glassCard {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        Text("TokenEater v\(updateStore.currentVersion)")
+                        Text("\(AppBranding.displayName) v\(updateStore.currentVersion)")
                             .font(.system(size: 12))
                             .foregroundStyle(.white.opacity(0.5))
                         Spacer()
@@ -349,6 +355,74 @@ struct SettingsSectionView: View {
         .padding(10)
         .background(Color.orange.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+
+    // MARK: - Codex account
+
+    private var codexCard: some View {
+        glassCard {
+            VStack(alignment: .leading, spacing: 10) {
+                cardLabel(String(localized: "codex.settings.title"))
+                darkToggle(String(localized: "codex.settings.toggle"), isOn: $settingsStore.codexEnabled)
+                Text(String(localized: "codex.settings.hint"))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if settingsStore.codexEnabled {
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(codexStatusColor)
+                            .frame(width: 8, height: 8)
+                        Text(codexStatusText)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.white.opacity(0.8))
+                        if codexUsageStore.plan != .unknown {
+                            Text(codexUsageStore.plan.displayLabel)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                        Spacer()
+                        Button(String(localized: "settings.redetect")) {
+                            codexUsageStore.handleCredentialsChange()
+                        }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.blue)
+                    }
+                    if let email = codexUsageStore.accountEmail, !email.isEmpty {
+                        Text(email)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(.white.opacity(0.45))
+                    }
+                    Text(String(format: String(localized: "codex.settings.source"), codexUsageStore.credentialsPath))
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.white.opacity(0.3))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            }
+        }
+    }
+
+    private var codexStatusColor: Color {
+        if codexUsageStore.hasData && !codexUsageStore.hasError { return .green }
+        return codexUsageStore.isConnectable ? .orange : .red
+    }
+
+    private var codexStatusText: String {
+        switch codexUsageStore.authState {
+        case .ready:
+            if codexUsageStore.hasError { return String(localized: "codex.error.refreshFailed") }
+            return codexUsageStore.hasData
+                ? String(localized: "settings.connected")
+                : String(localized: "codex.empty.loading.title")
+        case .expired:      return String(localized: "codex.empty.expired.title")
+        case .notInstalled: return String(localized: "codex.empty.notInstalled.title")
+        case .apiKeyMode:   return String(localized: "codex.empty.apiKey.title")
+        case .unreadable:   return String(localized: "codex.empty.unreadable.title")
+        }
     }
 
     private func formatInterval(_ seconds: Int) -> String {
