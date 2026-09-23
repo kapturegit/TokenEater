@@ -64,6 +64,7 @@ struct ComposablePopoverView: View {
 /// which SwiftUI documents as undefined geometry).
 private struct PopoverGrid: View {
     @EnvironmentObject private var usageStore: UsageStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
     @EnvironmentObject private var settingsStore: SettingsStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.popoverElementTap) private var tapHandler
@@ -106,7 +107,7 @@ private struct PopoverGrid: View {
 
     private var visibleElements: [PopoverElement] {
         settingsStore.popoverComposition.visibleElements.filter {
-            PopoverMetricResolver.isAvailable($0.kind, usage: usageStore)
+            PopoverMetricResolver.isAvailable($0.kind, usage: usageStore, codex: codexUsageStore)
         }
     }
 

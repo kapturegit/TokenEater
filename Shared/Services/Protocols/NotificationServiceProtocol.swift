@@ -32,6 +32,9 @@ struct NotificationToggles {
     let trackWeekly: Bool
     let trackSonnet: Bool
     let trackFable: Bool
+    /// Codex (second vendor) threshold alerts. Its own toggle, so a user who
+    /// tracks Codex on the dashboard isn't forced into notifications for it.
+    let trackCodex: Bool
     let sendRecovery: Bool
     let pacingHot: Bool
     let pacingWarning: Bool
@@ -66,6 +69,15 @@ protocol NotificationServiceProtocol {
         sessionPacing: PacingZone?,
         weeklyPacing: PacingZone?,
         extraUsage: ExtraUsage?,
+        toggles: NotificationToggles
+    )
+    /// Codex threshold alerts. A separate entry point rather than more
+    /// parameters on `evaluate`: the two vendors refresh on independent
+    /// timers, so folding them into one call would make each vendor's alerts
+    /// depend on the other having just fetched.
+    func evaluateCodex(
+        session: MetricSnapshot,
+        weekly: MetricSnapshot,
         toggles: NotificationToggles
     )
     func notifyTokenExpired(toggle: Bool)

@@ -134,10 +134,12 @@ private struct StudioMenuBarThumbnail: View {
     @EnvironmentObject private var themeStore: ThemeStore
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var vendorStatusStore: VendorStatusStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
 
     var body: some View {
         let data = MenuBarRenderer.RenderData.live(
             usage: usageStore,
+            codex: codexUsageStore,
             theme: themeStore,
             settings: settingsStore,
             vendor: vendorStatusStore

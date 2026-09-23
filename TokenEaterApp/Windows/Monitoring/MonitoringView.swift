@@ -10,6 +10,7 @@ import SwiftUI
 /// (default / neon / pastel / monochrome) stay in control of the data hue.
 struct MonitoringView: View {
     @EnvironmentObject private var usageStore: UsageStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
     @EnvironmentObject private var themeStore: ThemeStore
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var sessionStore: SessionStore
@@ -41,6 +42,9 @@ struct MonitoringView: View {
                 if let extra = usageStore.extraUsage, extra.isEnabled {
                     extraUsageTile(extra)
                 }
+                if settingsStore.codexEnabled {
+                    CodexUsageCard(store: codexUsageStore)
+                }
                 footerPills
             }
             .padding(DS.Spacing.md)
@@ -50,6 +54,11 @@ struct MonitoringView: View {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(30))
                 refreshLastUpdateText()
+                // Codex countdowns drain on the same tick; the store only
+                // recomputes them on a fetch, which is 5 minutes apart.
+                if settingsStore.codexEnabled {
+                    codexUsageStore.refreshResetCountdown()
+                }
             }
         }
         .onAppear { insightsStore.warmIfStale() }
@@ -84,7 +93,7 @@ struct MonitoringView: View {
                     .resizable()
                     .interpolation(.high)
                     .frame(width: 26, height: 26)
-                Text("TokenEater")
+                Text(AppBranding.displayName)
                     .font(DS.Typography.title1)
                     .foregroundStyle(DS.Palette.textPrimary)
             }

@@ -8,6 +8,7 @@ import SwiftUI
 struct PopoverSectionView: View {
     @EnvironmentObject private var settingsStore: SettingsStore
     @EnvironmentObject private var usageStore: UsageStore
+    @EnvironmentObject private var codexUsageStore: CodexUsageStore
 
     @State private var selectedElementID: UUID?
     @State private var showSaveDialog = false
@@ -279,6 +280,10 @@ struct PopoverSectionView: View {
                 addButton(for: .weeklyPacing)
                 addButton(for: .fablePacing)
             }
+            Section(String(localized: "popover.editor.family.codex")) {
+                addButton(for: .codexSession)
+                addButton(for: .codexWeekly)
+            }
             Section(String(localized: "popover.editor.family.utilities")) {
                 addButton(for: .planBadge)
                 addButton(for: .refreshButton)
@@ -317,6 +322,7 @@ struct PopoverSectionView: View {
         case .fable, .fablePacing: return usageStore.hasFable
         case .extraCredits: return usageStore.hasExtraCredits
         case .planBadge: return usageStore.planType != .unknown
+        case .codexSession, .codexWeekly: return codexUsageStore.isEnabled && codexUsageStore.hasData
         default: return true
         }
     }

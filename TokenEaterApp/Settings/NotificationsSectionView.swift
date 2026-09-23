@@ -143,6 +143,11 @@ struct NotificationsSectionView: View {
                 darkToggle(String(localized: "settings.notifications.track.weekly"), isOn: $settingsStore.notification.trackWeekly)
                 darkToggle(String(localized: "settings.notifications.track.sonnet"), isOn: $settingsStore.notification.trackSonnet)
                 darkToggle(String(localized: "settings.notifications.track.fable"), isOn: $settingsStore.notification.trackFable)
+                // Only offered when the second vendor is on: a Codex toggle
+                // for someone who doesn't track Codex is noise.
+                if settingsStore.codexEnabled {
+                    darkToggle(String(localized: "settings.notifications.track.codex"), isOn: $settingsStore.notification.trackCodex)
+                }
                 Divider().padding(.vertical, 2)
                 darkToggle(String(localized: "settings.notifications.recovery"), isOn: $settingsStore.notification.sendRecovery)
                 Text(String(localized: "settings.notifications.recovery.hint"))

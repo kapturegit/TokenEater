@@ -63,7 +63,7 @@
 "widget.history.vsYesterday" = "vs yesterday";
 "widget.history.stale" = "Open the app to refresh";
 "widget.history.empty.title" = "No history yet";
-"widget.history.empty.body" = "Open TokenEater so it can index your sessions";
+"widget.history.empty.body" = "Open Token Kapturing so it can index your sessions";
 
 /* Settings */
 "settings.subtitle" = "Monitor your Claude usage";
@@ -122,7 +122,7 @@
 "settings.redetect" = "Re-detect";
 "settings.general.title" = "General";
 "settings.launchAtLogin" = "Launch at login";
-"settings.launchAtLogin.hint" = "Open TokenEater automatically when you sign in to macOS. You can toggle this from System Settings → General → Login Items as well.";
+"settings.launchAtLogin.hint" = "Open Token Kapturing automatically when you sign in to macOS. You can toggle this from System Settings → General → Login Items as well.";
 "settings.launchInBackground" = "Launch in background";
 "settings.launchInBackground.hint" = "Start in the menu bar only and skip opening the dashboard window. Open it any time from the menu bar (right-click the icon, then Open).";
 "settings.general.replayOnboarding" = "Replay onboarding";
@@ -141,10 +141,10 @@
 "guide.oauth.title" = "Claude Code";
 "guide.oauth.badge" = "Recommended";
 "guide.oauth.step1" = "Install **Claude Code** (Anthropic's CLI)";
-"guide.oauth.step2" = "Open TokenEater and click **Connect**";
+"guide.oauth.step2" = "Open Token Kapturing and click **Connect**";
 "guide.oauth.step3" = "Done - token refreshes automatically";
 "guide.widget" = "Add the widget";
-"guide.widget.detail" = "Right-click desktop > **Edit Widgets** > **TokenEater**";
+"guide.widget.detail" = "Right-click desktop > **Edit Widgets** > **Token Kapturing**";
 
 /* Errors - API */
 "error.notoken" = "No OAuth token found. Install Claude Code and click Connect.";
@@ -165,8 +165,8 @@
 "error.banner.reauth.button" = "Re-authorize";
 "error.banner.waiting" = "Waiting for Claude Code to refresh";
 "error.banner.apiunavailable" = "Usage API throttled by Anthropic";
-"error.banner.apiunavailable.hint" = "This is a rate limit on Anthropic's usage API, not your token or setup. Nothing for you to fix - TokenEater keeps retrying and refreshes as soon as the limit clears (known issue: anthropics/claude-code#31637).";
-"error.banner.apiunavailable.settings" = "This is on Anthropic's side (their usage API), not your token or setup. TokenEater retries automatically and recovers when the limit clears.";
+"error.banner.apiunavailable.hint" = "This is a rate limit on Anthropic's usage API, not your token or setup. Nothing for you to fix - Token Kapturing keeps retrying and refreshes as soon as the limit clears (known issue: anthropics/claude-code#31637).";
+"error.banner.apiunavailable.settings" = "This is on Anthropic's side (their usage API), not your token or setup. Token Kapturing retries automatically and recovers when the limit clears.";
 "error.banner.apiunavailable.learnmore" = "Learn more";
 "error.banner.lastupdate" = "Last successful update: %@";
 "error.banner.retry.button" = "Retry now";
@@ -436,7 +436,7 @@
 "settings.reset.color" = "Reset countdown";
 "settings.session.periodcolor" = "Period label (5h / 7d)";
 "settings.theme.menubar" = "Menu bar text";
-"settings.theme.menubar.hint" = "Customize the color of the reset countdown and period labels in the menu bar. Leave on system defaults if you want TokenEater to match your menu bar styling.";
+"settings.theme.menubar.hint" = "Customize the color of the reset countdown and period labels in the menu bar. Leave on system defaults if you want Token Kapturing to match your menu bar styling.";
 "settings.theme.menubar.resetColor" = "Revert to system default";
 "settings.theme.smartreset" = "Smart color for reset countdown";
 "settings.theme.smartreset.hint" = "Colour the reset countdown based on urgency (gauge colors): green when you have headroom, orange / red when usage is high relative to time remaining. Overrides the manual color above while on.";
@@ -480,7 +480,7 @@
 "update.check" = "Check for updates";
 "update.uptodate" = "Up to date";
 "update.available.title" = "Update available";
-"update.available.subtitle" = "A new version of TokenEater is ready";
+"update.available.subtitle" = "A new version of Token Kapturing is ready";
 "update.available.badge %@" = "v%@ available";
 "update.download" = "Download";
 "update.later" = "Later";
@@ -489,12 +489,12 @@
 "update.ready.title" = "Ready to install";
 "update.ready.subtitle" = "macOS will ask for your password to install the update.";
 "update.install" = "Install & relaunch";
-"update.install.hint" = "TokenEater will restart automatically";
+"update.install.hint" = "Token Kapturing will restart automatically";
 "update.installing" = "Installing...";
 "update.installing.hint" = "Enter your password when macOS asks";
 "update.version.current" = "Current";
 "update.version.new" = "New";
-"update.error.notInApplications" = "In-app updates require TokenEater to be installed in /Applications. Move it there, or download the latest version from GitHub Releases.";
+"update.error.notInApplications" = "In-app updates require Token Kapturing to be installed in /Applications. Move it there, or download the latest version from GitHub Releases.";
 "update.error.signatureInvalid" = "Signature verification failed. Aborting install.";
 "update.error.signatureMissing" = "Update is missing a signature. Aborting install.";
 "update.error.sizeMismatch" = "Update file size does not match the appcast. Aborting install.";
@@ -506,7 +506,7 @@
 
 /* Brew Migration */
 "update.brew.detected" = "Installed via Homebrew";
-"update.brew.hint" = "Updates are now handled directly by TokenEater. Run this command to clean up the old brew install:";
+"update.brew.hint" = "Updates are now handled directly by Token Kapturing. Run this command to clean up the old brew install:";
 "update.brew.dismiss" = "Dismiss";
 
 /* Session Overlay */
@@ -529,7 +529,7 @@
 "settings.watchers.style.hint" = "Visual treatment for each session tile.";
 "settings.watchers.terminalSetup" = "Terminal setup";
 "settings.watchers.terminalSetup.hint" = "Helpers for tmux, WezTerm and Kitty in one place.";
-"settings.watchers.terminalSetup.sheet.hint" = "Drop the matching snippet into your terminal config so TokenEater can pick up sessions correctly.";
+"settings.watchers.terminalSetup.sheet.hint" = "Drop the matching snippet into your terminal config so Token Kapturing can pick up sessions correctly.";
 "settings.watchers.animations" = "Animations";
 "settings.watchers.idle" = "Idle - waiting for input";
 "settings.watchers.thinking" = "Thinking - generating a response";
@@ -555,13 +555,13 @@
 "settings.watchers.size" = "Card size";
 "settings.watchers.size.reset" = "Reset to default";
 "settings.watchers.tmux.title" = "tmux setup";
-"settings.watchers.tmux.hint" = "If you use tmux, add this line to your ~/.tmux.conf so TokenEater can switch to the right pane on click:";
+"settings.watchers.tmux.hint" = "If you use tmux, add this line to your ~/.tmux.conf so Token Kapturing can switch to the right pane on click:";
 "settings.watchers.tmux.copy" = "Copy";
 "settings.watchers.kitty.title" = "Kitty setup";
-"settings.watchers.kitty.hint" = "If you use Kitty, add this line to your kitty.conf so TokenEater can switch to the right tab on click:";
+"settings.watchers.kitty.hint" = "If you use Kitty, add this line to your kitty.conf so Token Kapturing can switch to the right tab on click:";
 "settings.watchers.kitty.copy" = "Copy";
 "settings.watchers.wezterm.title" = "WezTerm setup";
-"settings.watchers.wezterm.hint" = "If you use WezTerm, add this line to your ~/.wezterm.lua so TokenEater can switch to the right pane on click:";
+"settings.watchers.wezterm.hint" = "If you use WezTerm, add this line to your ~/.wezterm.lua so Token Kapturing can switch to the right pane on click:";
 "settings.watchers.wezterm.copy" = "Copy";
 "settings.watchers.style" = "Overlay style";
 "settings.watchers.style.frost" = "Frost";
@@ -576,7 +576,7 @@
 
 /* Performance */
 "sidebar.performance" = "Performance";
-"settings.performance.description" = "If TokenEater uses too much CPU, disable resource-heavy features here.";
+"settings.performance.description" = "If Token Kapturing uses too much CPU, disable resource-heavy features here.";
 "settings.performance.dashboard" = "Dashboard";
 "settings.performance.gradient" = "Animated gradient";
 "settings.performance.watchers" = "Agent Watchers";
@@ -609,7 +609,7 @@
 "history.hero.cacheHit" = "cache hit";
 "history.empty.dash" = "—";
 "history.empty.title" = "No sessions yet";
-"history.empty.subtitle" = "Run Claude Code to populate your history. Each session writes a JSONL file under ~/.claude/projects/ which TokenEater aggregates here.";
+"history.empty.subtitle" = "Run Claude Code to populate your history. Each session writes a JSONL file under ~/.claude/projects/ which Token Kapturing aggregates here.";
 "history.empty.filter.all" = "Nothing logged in the last %@";
 "history.empty.filter.model" = "No %@ usage in the last %@";
 "history.chip.cacheHit" = "Cache hit";
@@ -671,7 +671,7 @@
 "studio.intro.text" = "The Studio is here. Popover, menu bar and themes, all in one place.";
 "studio.intro.cta" = "See what's new";
 "whatsnew.title" = "What's new";
-"whatsnew.subtitle" = "This update rethinks how you customize TokenEater.";
+"whatsnew.subtitle" = "This update rethinks how you customize Token Kapturing.";
 "whatsnew.studio.title" = "The Studio";
 "whatsnew.studio.text" = "A new space gathering all visual customization, with live previews.";
 "whatsnew.popover.title" = "Composable popover";
@@ -729,7 +729,7 @@
 "popoverElement.fablePacing" = "Fable pacing";
 "popoverElement.watchers" = "Agent watchers";
 "popoverElement.timestamp" = "Updated timestamp";
-"popoverElement.openButton" = "Open TokenEater button";
+"popoverElement.openButton" = "Open Token Kapturing button";
 "popoverElement.quitButton" = "Quit button";
 "popoverElement.planBadge" = "Plan badge";
 "popoverElement.refreshButton" = "Refresh button";
@@ -820,7 +820,7 @@
 
 /* Menu bar icon right-click menu */
 "contextmenu.refresh" = "Refresh now";
-"contextmenu.open" = "Open TokenEater...";
+"contextmenu.open" = "Open Token Kapturing...";
 "contextmenu.template" = "Popover template";
 "contextmenu.watchers.enable" = "Enable Agent Watchers";
 "contextmenu.watchers.disable" = "Disable Agent Watchers";
@@ -835,7 +835,7 @@
 
 "onboarding.hero.label" = "SETUP";
 "onboarding.hero.title" = "Hey, you're here";
-"onboarding.hero.subtitle" = "Couple of permissions and TokenEater is live";
+"onboarding.hero.subtitle" = "Couple of permissions and Token Kapturing is live";
 "onboarding.progress.label %lld %lld" = "%lld / %lld ready";
 "onboarding.finish" = "Finish";
 
@@ -906,3 +906,71 @@
 "notif.body.fable.red.fallback" = "Fable pool almost out";
 "notif.body.fable.green" = "Fable refilled at %@";
 "notif.body.fable.green.fallback" = "Fable refilled, you're back";
+
+/* Codex (ChatGPT) usage tracking */
+"codex.title" = "Codex";
+"codex.metric.session" = "5h limit";
+"codex.metric.weekly" = "Weekly limit";
+"codex.metric.session.short" = "Codex 5h";
+"codex.metric.weekly.short" = "Codex 7d";
+"codex.remaining" = "%d%% left";
+"codex.used" = "%d%% used";
+"codex.refresh" = "Refresh Codex usage";
+"codex.limitReached" = "LIMIT REACHED";
+"codex.credits" = "%@ credits";
+"codex.credits.unlimited" = "Unlimited credits";
+"codex.empty.notInstalled.title" = "Codex not connected";
+"codex.empty.notInstalled.hint" = "Install the Codex CLI and run `codex` once to sign in with your ChatGPT account.";
+"codex.empty.apiKey.title" = "Signed in with an API key";
+"codex.empty.apiKey.hint" = "API key usage is billed per token, so there are no plan limits to track. Sign in with a ChatGPT account to see limits here.";
+"codex.empty.expired.title" = "Codex login expired";
+"codex.empty.expired.hint" = "Run `codex` in a terminal to refresh it. Token Kapturing never writes to your Codex credentials, so it can't refresh them for you.";
+"codex.empty.unreadable.title" = "Codex credentials unreadable";
+"codex.empty.unreadable.hint" = "Could not read a token from %@.";
+"codex.empty.loading.title" = "Loading Codex usage";
+"codex.empty.loading.hint" = "Fetching your current limits from ChatGPT.";
+"codex.empty.error.hint" = "Showing nothing rather than stale numbers. Retry in a moment.";
+"codex.error.rateLimited" = "Rate limited";
+"codex.error.network" = "Network error";
+"codex.error.refreshFailed" = "Refresh failed";
+"codex.error.noCredentials" = "No Codex credentials found";
+"codex.settings.title" = "Codex account";
+"codex.settings.toggle" = "Track Codex usage";
+"codex.settings.hint" = "Shows your ChatGPT plan's 5h and weekly Codex limits next to Claude's. Read-only: Token Kapturing reads the token the Codex CLI already stored and never writes to it.";
+"codex.settings.source" = "Reads %@";
+"popoverElement.codexSession" = "Codex session (5h)";
+"popoverElement.codexWeekly" = "Codex weekly";
+"menuBarSegment.codexSession" = "Codex session (5h)";
+"menuBarSegment.codexWeekly" = "Codex weekly";
+"menuBar.editor.family.codex" = "Codex";
+"popover.editor.family.codex" = "Codex";
+
+/* Codex notifications */
+"settings.notifications.track.codex" = "Track Codex limits";
+"notif.title.codex.session.orange" = "Codex 5h running low";
+"notif.title.codex.session.red" = "Codex 5h almost gone";
+"notif.title.codex.session.green" = "Codex 5h reset";
+"notif.body.codex.session.orange" = "Resets in %@";
+"notif.body.codex.session.red" = "Ease off Codex until it resets in %@";
+"notif.body.codex.session.orange.fallback" = "Past the Codex 5h warning";
+"notif.body.codex.session.red.fallback" = "Codex 5h window almost out";
+"notif.body.codex.session.green" = "Codex refilled at %@";
+"notif.body.codex.session.green.fallback" = "Codex 5h refilled, you're back";
+"notif.title.codex.weekly.orange" = "Codex week running low";
+"notif.title.codex.weekly.red" = "Codex week almost gone";
+"notif.title.codex.weekly.green" = "Codex week reset";
+"notif.title.codex.weekly.pace" = "Ahead of Codex pace";
+"notif.body.codex.weekly.pace" = "You're ahead of an even Codex burn rate, not near the cap. Fine if intentional.";
+"notif.body.codex.weekly.orange" = "Resets %@";
+"notif.body.codex.weekly.red" = "Ease off Codex until %@";
+"notif.body.codex.weekly.orange.fallback" = "Past the Codex weekly warning";
+"notif.body.codex.weekly.red.fallback" = "Codex weekly limit almost out";
+"notif.body.codex.weekly.green" = "Codex week refilled at %@";
+"notif.body.codex.weekly.green.fallback" = "Codex week refilled, you're back";
+
+/* Codex widget */
+"widget.title.codex" = "Codex usage";
+"widget.description.codex" = "Your Codex 5h and weekly limits, and how much is left.";
+"widget.codex.notTracked" = "Codex tracking is off";
+"widget.codex.session" = "5h";
+"widget.codex.weekly" = "Week";

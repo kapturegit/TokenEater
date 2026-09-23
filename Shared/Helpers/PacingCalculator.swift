@@ -43,6 +43,33 @@ enum PacingCalculator {
         return results
     }
 
+    /// Pacing for a vendor-neutral window: anything that can state "I am X%
+    /// consumed and I refill at T". Codex reports exactly that (`used_percent`
+    /// + `reset_at`) but in OpenAI's own shape, so rather than teach the
+    /// calculator a second vendor it adapts the pair into the `UsageBucket`
+    /// the whole pipeline already speaks. `bucket` picks the window length and
+    /// the message family, so a Codex 5h window reads with the same sprint
+    /// vocabulary as a Claude one.
+    static func calculate(
+        utilization: Double,
+        resetsAt: Date?,
+        bucket: PacingBucket,
+        margin: Double = 10,
+        now: Date = Date(),
+        activeDays: Set<Int> = PacingSchedule.allDays,
+        activeHours: (start: Int, end: Int)? = nil
+    ) -> PacingResult? {
+        guard let resetsAt else { return nil }
+        let adapted = UsageBucket(utilization: utilization, resetsAt: isoFormatter.string(from: resetsAt))
+        return calculateForBucket(adapted, bucket: bucket, margin: margin, now: now, activeDays: activeDays, activeHours: activeHours)
+    }
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
     /// Active sub-intervals within `[from, to]`: the day-sized segments that fall
     /// on an active weekday, clipped to the active hours window when `hours` is
     /// set. `activeDays` uses Gregorian weekday numbers (1=Sunday ... 7=Saturday);

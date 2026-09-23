@@ -19,6 +19,7 @@ final class StatusBarController: NSObject {
     private var countdownCancellable: AnyCancellable?
 
     private let usageStore: UsageStore
+    private let codexUsageStore: CodexUsageStore
     private let themeStore: ThemeStore
     private let settingsStore: SettingsStore
     private let updateStore: UpdateStore
@@ -28,6 +29,7 @@ final class StatusBarController: NSObject {
 
     init(
         usageStore: UsageStore,
+        codexUsageStore: CodexUsageStore,
         themeStore: ThemeStore,
         settingsStore: SettingsStore,
         updateStore: UpdateStore,
@@ -36,6 +38,7 @@ final class StatusBarController: NSObject {
         tokenFileMonitor: TokenFileMonitorProtocol = TokenFileMonitor()
     ) {
         self.usageStore = usageStore
+        self.codexUsageStore = codexUsageStore
         self.themeStore = themeStore
         self.settingsStore = settingsStore
         self.updateStore = updateStore
@@ -110,6 +113,7 @@ final class StatusBarController: NSObject {
     private func installPopoverContent() {
         let popoverView = MenuBarPopoverView()
             .environmentObject(usageStore)
+            .environmentObject(codexUsageStore)
             .environmentObject(themeStore)
             .environmentObject(settingsStore)
             .environmentObject(updateStore)
@@ -120,6 +124,7 @@ final class StatusBarController: NSObject {
     private func observeStoreChanges() {
         Publishers.MergeMany(
             usageStore.objectWillChange.map { _ in () }.eraseToAnyPublisher(),
+            codexUsageStore.objectWillChange.map { _ in () }.eraseToAnyPublisher(),
             themeStore.objectWillChange.map { _ in () }.eraseToAnyPublisher(),
             settingsStore.objectWillChange.map { _ in () }.eraseToAnyPublisher(),
             vendorStatusStore.objectWillChange.map { _ in () }.eraseToAnyPublisher()
@@ -144,6 +149,8 @@ final class StatusBarController: NSObject {
             .sink { [weak self] newMargin in
                 self?.usageStore.pacingMargin = newMargin
                 self?.usageStore.recalculatePacing()
+                self?.codexUsageStore.pacingMargin = newMargin
+                self?.codexUsageStore.recalculatePacing()
             }
             .store(in: &cancellables)
 
@@ -172,6 +179,7 @@ final class StatusBarController: NSObject {
             .removeDuplicates()
             .sink { [weak self] newInterval in
                 self?.usageStore.refreshIntervalSeconds = TimeInterval(newInterval)
+                self?.codexUsageStore.refreshIntervalSeconds = TimeInterval(newInterval)
             }
             .store(in: &cancellables)
 
@@ -189,6 +197,17 @@ final class StatusBarController: NSObject {
                 guard let self else { return }
                 if enabled { self.vendorStatusStore.start() }
                 else { self.vendorStatusStore.stop() }
+            }
+            .store(in: &cancellables)
+
+        // `dropFirst`: the initial value is applied by `bootstrapRefresh`,
+        // after proxy + interval are configured. Without it this sink would
+        // fire during `init` and kick off a fetch with an unconfigured store.
+        settingsStore.$codexEnabled
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] enabled in
+                self?.codexUsageStore.isEnabled = enabled
             }
             .store(in: &cancellables)
 
@@ -210,6 +229,16 @@ final class StatusBarController: NSObject {
         vendorStatusStore.healthyPollInterval = TimeInterval(settingsStore.statusPollInterval)
         usageStore.reloadConfig(thresholds: themeStore.thresholds)
         usageStore.startAutoRefresh(thresholds: themeStore.thresholds)
+
+        codexUsageStore.proxyConfig = settingsStore.proxyConfig
+        codexUsageStore.pacingMargin = settingsStore.pacingMargin
+        codexUsageStore.refreshIntervalSeconds = TimeInterval(settingsStore.refreshInterval)
+        codexUsageStore.notifTogglesProvider = { [weak self] in self?.makeNotificationToggles() }
+        // `isEnabled`'s didSet starts the loop and fires the first fetch, so
+        // the cached snapshot is loaded first to avoid an empty frame.
+        codexUsageStore.loadCached()
+        codexUsageStore.isEnabled = settingsStore.codexEnabled
+
         themeStore.syncToSharedFile()
 
         // Monitor token files (credentials + config.json) for changes
@@ -223,6 +252,13 @@ final class StatusBarController: NSObject {
             }
             .store(in: &cancellables)
 
+        tokenFileMonitor.codexCredentialsChanged
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.codexUsageStore.handleCredentialsChange()
+            }
+            .store(in: &cancellables)
+
         // Refresh after wake from sleep
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.screensDidWakeNotification,
@@ -232,6 +268,7 @@ final class StatusBarController: NSObject {
             guard let self else { return }
             Task { @MainActor in
                 await self.usageStore.refreshIfStale()
+                await self.codexUsageStore.refresh(force: true)
             }
         }
 
@@ -249,6 +286,7 @@ final class StatusBarController: NSObject {
             trackWeekly: settingsStore.notifTrackWeekly,
             trackSonnet: settingsStore.notifTrackSonnet,
             trackFable: settingsStore.notifTrackFable,
+            trackCodex: settingsStore.notifTrackCodex,
             sendRecovery: settingsStore.notifSendRecovery,
             pacingHot: settingsStore.notifPacingHot,
             pacingWarning: settingsStore.notifPacingWarning,
@@ -322,7 +360,7 @@ final class StatusBarController: NSObject {
 
     private func updateMenuBarIcon() {
         let image = MenuBarRenderer.render(
-            .live(usage: usageStore, theme: themeStore, settings: settingsStore, vendor: vendorStatusStore)
+            .live(usage: usageStore, codex: codexUsageStore, theme: themeStore, settings: settingsStore, vendor: vendorStatusStore)
         )
         statusItem.button?.image = image
     }
@@ -621,6 +659,7 @@ final class StatusBarController: NSObject {
 
         let appView = MainAppView()
             .environmentObject(usageStore)
+            .environmentObject(codexUsageStore)
             .environmentObject(themeStore)
             .environmentObject(settingsStore)
             .environmentObject(updateStore)

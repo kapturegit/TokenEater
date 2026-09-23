@@ -5,6 +5,8 @@ final class MockSharedFileService: SharedFileServiceProtocol, @unchecked Sendabl
 
     var _cachedUsage: CachedUsage?
     var _lastSyncDate: Date?
+    var _cachedCodexUsage: CachedCodexUsage?
+    var _codexLastSyncDate: Date?
     var _theme: ThemeColors = .default
     var _thresholds: UsageThresholds = .default
     var _smartColorEnabled: Bool = true
@@ -13,6 +15,7 @@ final class MockSharedFileService: SharedFileServiceProtocol, @unchecked Sendabl
     var _lastWeekDailyTotals: [Int]?
     var _lastWeekTotalsRefreshedAt: Date?
     var updateAfterSyncCallCount = 0
+    var updateCodexAfterSyncCallCount = 0
     var updateThemeCallCount = 0
     var updateSmartColorCallCount = 0
     var updateSmartColorProfileCallCount = 0
@@ -23,6 +26,8 @@ final class MockSharedFileService: SharedFileServiceProtocol, @unchecked Sendabl
 
     var cachedUsage: CachedUsage? { _cachedUsage }
     var lastSyncDate: Date? { _lastSyncDate }
+    var cachedCodexUsage: CachedCodexUsage? { _cachedCodexUsage }
+    var codexLastSyncDate: Date? { _codexLastSyncDate }
     var theme: ThemeColors { _theme }
     var thresholds: UsageThresholds { _thresholds }
     var smartColorEnabled: Bool { _smartColorEnabled }
@@ -35,6 +40,12 @@ final class MockSharedFileService: SharedFileServiceProtocol, @unchecked Sendabl
         updateAfterSyncCallCount += 1
         _cachedUsage = usage
         _lastSyncDate = syncDate
+    }
+
+    func updateCodexAfterSync(usage: CachedCodexUsage, syncDate: Date) {
+        updateCodexAfterSyncCallCount += 1
+        _cachedCodexUsage = usage
+        _codexLastSyncDate = syncDate
     }
 
     func updateTheme(_ theme: ThemeColors, thresholds: UsageThresholds) {
@@ -69,5 +80,7 @@ final class MockSharedFileService: SharedFileServiceProtocol, @unchecked Sendabl
     func clear() {
         _cachedUsage = nil
         _lastSyncDate = nil
+        _cachedCodexUsage = nil
+        _codexLastSyncDate = nil
     }
 }

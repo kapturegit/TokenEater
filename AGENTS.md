@@ -12,6 +12,18 @@ It complements the other docs and deliberately does not duplicate them:
 
 Current version: 5.13.0 (`MARKETING_VERSION` in `project.yml`).
 
+**Product name.** The user-facing name is **Token Kapturing**, set in two
+places that must stay in sync: `PRODUCT_NAME` / `CFBundleDisplayName` in
+`project.yml`, and `AppBranding.fallbackName` in
+`Shared/Design/AppBranding.swift` (the fallback the widget extension uses,
+since its Info.plist carries no display name). Every user-visible mention goes
+through `AppBranding.displayName` or the `.strings` files - never a literal.
+The **bundle identifier stays `com.tokeneater.app`** and must not be renamed
+with it: it keys the shared state directory, the widget registration, the
+Keychain items and the LaunchServices history. The in-app updater's
+`te-update.sh` and the release workflows still target `TokenEater.app` from the
+upstream appcast, so a renamed build cannot self-update.
+
 ## Language
 
 - Everything on GitHub (issues, PRs, commits, branches) is in English.
@@ -27,7 +39,7 @@ Three targets:
 
 | Target | What it is | Sources |
 |--------|-----------|---------|
-| `TokenEaterApp` | The app host. Non-sandboxed (since v5.0) so it can read the token. `LSUIElement` (no Dock icon). | `TokenEaterApp/` + `Shared/` |
+| `TokenEaterApp` | The app host, built as `Token Kapturing.app`. Non-sandboxed (since v5.0) so it can read the token. `LSUIElement` (no Dock icon). | `TokenEaterApp/` + `Shared/` |
 | `TokenEaterWidgetExtension` | The WidgetKit extension. Sandboxed and read-only (WidgetKit requires `app-sandbox: true`). | `TokenEaterWidget/` + `Shared/` |
 | `TokenEaterTests` | Swift Testing bundle, unsigned. | `TokenEaterTests/` + `Shared/` + the single file `TokenEaterApp/OnboardingViewModel.swift` |
 
@@ -36,9 +48,9 @@ XcodeGen strips the widget's `NSExtension` key from `Info.plist` on every genera
 `Shared/` is compiled into all three targets:
 
 - `Shared/Models/` - pure `Codable` structs and enums (UsageModels, ProfileModels, PacingModels, ThemeModels, SessionModels, MetricModels, ProxyConfig, and the various display-format enums).
-- `Shared/Services/` - protocol-backed I/O. 15 services, each with a protocol in `Shared/Services/Protocols/` and a mock in `TokenEaterTests/Mocks/`.
-- `Shared/Repositories/` - `UsageRepository` (orchestrates `APIClient` then `SharedFileService`).
-- `Shared/Stores/` - 7 `ObservableObject` state containers.
+- `Shared/Services/` - protocol-backed I/O. 17 services, each with a protocol in `Shared/Services/Protocols/` and a mock in `TokenEaterTests/Mocks/`.
+- `Shared/Repositories/` - `UsageRepository` (orchestrates `APIClient` then `SharedFileService`) and `CodexUsageRepository` (its Codex twin).
+- `Shared/Stores/` - 8 `ObservableObject` state containers.
 - `Shared/Helpers/` - 12 pure enums/structs, no I/O (PacingCalculator, MenuBarRenderer, SmartColor, JSONLParser, ProcessResolver, DiagnosticReporter, CurrencyFormatter, MetricsGridLayout, NotificationBodyFormatter, OverlayHitTest, ResetCountdownFormatter, WidgetReloader).
 - `Shared/Components/` - 12 reusable SwiftUI views shared by app and widget (RingGauge, PacingBar, AnimatedGradient, GlowText, etc.).
 - `Shared/Design/DesignTokens.swift` - the `DS` design-token namespace plus a `View` extension.
@@ -63,6 +75,21 @@ UsageRepository              APIClient calls the usage/profile API, then
 TokenEaterWidgetExtension    sandboxed widget reads that JSON only (no network, no Keychain)
 ```
 
+The optional second vendor (Codex / ChatGPT) mirrors that pipeline end to end,
+writing its own key in the same shared file so the two can never bleed into
+each other:
+
+```
+CodexAuthReader              READ-ONLY read of ~/.codex/auth.json
+   |
+CodexUsageStore              opt-in (SettingsStore.codexEnabled), own refresh loop
+   |
+CodexUsageRepository         CodexAPIClient calls backend-api/wham/usage, then
+   |                         SharedFileService writes `cachedCodexUsage`
+   v
+                             same shared.json
+```
+
 `TokenFileMonitor` watches the credential files with a `DispatchSource` filesystem watcher (kqueue/vnode) and triggers an immediate refresh on change. The Agent Watchers overlay scans running Claude Code processes and tail-reads their JSONL logs.
 
 The menu bar is **AppKit `NSStatusItem`** managed by `StatusBarController`, not SwiftUI `MenuBarExtra`. The `App` body is `Settings { EmptyView() }`; the real UI is wired in the `AppDelegate` (`@NSApplicationDelegateAdaptor`) and hosted through `NSHostingController` / `NSHostingView`. That hosting root is where stores get injected with `.environmentObject(...)`. To add a store: construct it as a `private let` in `TokenEaterApp.init`, hand it to the `AppDelegate`, and inject it at the hosting roots in `StatusBarController` and `OverlayWindowController`.
@@ -78,6 +105,23 @@ All credential reading goes through `Shared/Services/TokenProvider.swift`. `curr
 
 `refreshTokenIfChanged()` re-polls the sources on the auto-refresh tick to catch Keychain account swaps (`claude /login`, account switch) that emit no filesystem event. `bootstrap()` is the only interactive read and is used once during onboarding. There is no `KeychainService` type; Keychain access lives in `SecurityCLIReader` and the inline reader closure in `TokenProvider`.
 
+### Codex credentials (`CodexAuthReader`)
+
+The Codex side reads `~/.codex/auth.json` (or `$CODEX_HOME/auth.json`) and
+nothing else. **It never writes to that file, and this is load-bearing.** The
+refresh token in it rotates: spending it to mint a fresh access token without
+writing the replacement back would leave the Codex CLI's own copy dead the next
+time the user runs `codex`. So the app rides along on whatever access token the
+CLI last stored (they last ~10 days and the CLI refreshes well before expiry),
+and when one does lapse, `CodexAuthState.expired` surfaces a "run codex to
+refresh" message instead of a failed request. If you are ever tempted to add a
+refresh path here, it has to write the full rotated token set back atomically -
+or not exist.
+
+`CodexAuthState` distinguishes `notInstalled` / `apiKeyMode` / `unreadable` /
+`expired` / `ready` because each one needs a different fix from the user, and a
+single "not connected" message would hide which.
+
 ### Where to start reading
 
 - `TokenEaterApp/TokenEaterApp.swift` - `@main`, the `AppDelegate`, and store wiring.
@@ -86,7 +130,7 @@ All credential reading goes through `Shared/Services/TokenProvider.swift`. `curr
 - `Shared/Repositories/UsageRepository.swift` - API to shared-file pipeline.
 - `TokenEaterApp/StatusBarController.swift` - menu bar item and popover hosting.
 
-### The 7 stores
+### The 8 stores
 
 All are `@MainActor final class ...: ObservableObject`.
 
@@ -99,6 +143,7 @@ All are `@MainActor final class ...: ObservableObject`.
 | `UpdateStore` | In-app update state machine, brew migration state, release notes. Owns `UpdateService` / `SignatureVerifier` / `BrewMigrationService`. |
 | `HistoryStore` | Drives the History view (range + model filter, JSONL buckets via `SessionHistoryService`). |
 | `MonitoringInsightsStore` | Lightweight 7-day buckets and previous-week delta for the Monitoring homepage. |
+| `CodexUsageStore` | Codex (ChatGPT) usage: the 5h + weekly rate-limit windows, plan, credits, auth state. Opt-in via `SettingsStore.codexEnabled`; own refresh loop and backoff, deliberately independent of `UsageStore` so a broken Codex login can never take the Claude gauges down. Fires its own threshold notifications through `NotificationService.evaluateCodex`. |
 
 `@StateObject` is correct for a view that owns a child store whose state must outlive navigation: `MainAppView` owns `HistoryStore` and `MonitoringInsightsStore`, `OnboardingView` owns `OnboardingViewModel`. The `@StateObject` ban below applies only to the `App` struct.
 
@@ -118,6 +163,7 @@ All are `@MainActor final class ...: ObservableObject`.
 | Onboarding | `OnboardingView.swift`, `OnboardingViewModel.swift`, `Onboarding/Cards/*` |
 | Settings / Themes | `SettingsRootView.swift`, `SettingsSectionView.swift`, `DisplaySectionView.swift`, `ThemesSectionView.swift` |
 | Token / auth | `Services/TokenProvider.swift`, `SecurityCLIReader.swift`, `CredentialsFileReader.swift`, `ClaudeConfigReader.swift`, `ElectronDecryptionService.swift`, `TokenFileMonitor.swift` |
+| Codex (second vendor) | `Services/CodexAuthReader.swift`, `Services/CodexAPIClient.swift`, `Repositories/CodexUsageRepository.swift`, `Stores/CodexUsageStore.swift`, `Models/CodexModels.swift`, `Windows/Monitoring/CodexUsageCard.swift`, `TokenEaterWidget/CodexWidgetView.swift` |
 | Widget | `TokenEaterWidget/TokenEaterWidget.swift` (`@main` `WidgetBundle`: usage widget + pacing widget), `Provider.swift`, `*WidgetView.swift` |
 
 ## Hard SwiftUI rules (do not break)

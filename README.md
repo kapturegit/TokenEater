@@ -126,6 +126,14 @@ Both are read-only. The app cannot send messages, read conversations, or modify 
 
 Anthropic does not offer a third-party OAuth flow or scoped tokens yet, so reading the existing token is the only way an app like this can exist. If scoped tokens become available, TokenEater will adopt them immediately. The relevant code is short and auditable: keychain access in [`SecurityCLIReader.swift`](Shared/Services/SecurityCLIReader.swift) and [`TokenProvider.swift`](Shared/Services/TokenProvider.swift), the two API calls in [`APIClient.swift`](Shared/Services/APIClient.swift).
 
+### Tracking Codex too (optional)
+
+Turn on **Track Codex usage** in Settings and the app shows your ChatGPT plan's Codex limits, the 5h and the weekly window, next to Claude's: how much each is burned, how much is left, and when it refills. Pin either to the menu bar or the popover alongside the Claude gauges, add the **Codex usage** widget to the desktop, and get threshold alerts for Codex under its own notification toggle.
+
+It adds exactly one read-only call, `GET chatgpt.com/backend-api/wham/usage`, the same one the Codex CLI's own `/status` makes. It reads the access token the Codex CLI already stored in `~/.codex/auth.json` and **never writes to that file**: the refresh token in it rotates, so refreshing on your behalf without writing the new one back would break your `codex` login in the terminal. When the stored token does expire, TokenEater says so and asks you to run `codex` once, rather than quietly breaking your CLI to keep a gauge alive. The code is [`CodexAuthReader.swift`](Shared/Services/CodexAuthReader.swift) and [`CodexAPIClient.swift`](Shared/Services/CodexAPIClient.swift).
+
+The feature is off by default; with it off, nothing Codex-related is ever read or requested.
+
 ## If something breaks
 
 | Symptom | Cause | Fix |

@@ -12,6 +12,8 @@ import Foundation
 enum PopoverElementKind: String, Codable, CaseIterable, Identifiable {
     // Usage metrics (percentage + reset window)
     case session, weekly, sonnet, fable, extraCredits
+    // Codex (ChatGPT) usage: the 5h and weekly windows of the second vendor.
+    case codexSession, codexWeekly
     // Pacing metrics (delta vs linear pace)
     case sessionPacing, weeklyPacing, fablePacing
     // Utility rows
@@ -25,7 +27,7 @@ enum PopoverElementKind: String, Codable, CaseIterable, Identifiable {
 
     var family: Family {
         switch self {
-        case .session, .weekly, .sonnet, .fable, .extraCredits:
+        case .session, .weekly, .sonnet, .fable, .extraCredits, .codexSession, .codexWeekly:
             return .usage
         case .sessionPacing, .weeklyPacing, .fablePacing:
             return .pacing
@@ -427,6 +429,7 @@ extension PopoverElementKind {
         case .sonnet: return "quote.opening"
         case .fable: return "books.vertical.fill"
         case .extraCredits: return "creditcard.fill"
+        case .codexSession, .codexWeekly: return "chevron.left.forwardslash.chevron.right"
         case .sessionPacing, .weeklyPacing, .fablePacing: return "speedometer"
         case .watchers: return "eye.fill"
         case .timestamp: return "clock"

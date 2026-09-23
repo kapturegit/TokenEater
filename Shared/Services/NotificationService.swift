@@ -71,11 +71,26 @@ private enum Surface: String {
     case weekly
     case sonnet
     case fable
+    case codexSession
+    case codexWeekly
 
     /// `weekly` and `sonnet` share the long-form body (date-based)
     /// but each gets its own title to avoid generic alerts.
     var bodyFamily: String {
-        self == .fiveHour ? "fivehour" : rawValue
+        switch self {
+        case .fiveHour: return "fivehour"
+        case .codexSession: return "codex.session"
+        case .codexWeekly: return "codex.weekly"
+        default: return rawValue
+        }
+    }
+
+    /// Windows short enough that the copy should read as a countdown ("in
+    /// 42min") rather than a date - the 5h window of either vendor. Weekly
+    /// buckets get the date-based wording and the pace-driven variants,
+    /// where "ahead of pace" is a meaningful thing to say.
+    var isShortWindow: Bool {
+        self == .fiveHour || self == .codexSession
     }
 }
 
@@ -160,6 +175,22 @@ final class NotificationService: NotificationServiceProtocol {
         if toggles.extraCredits, let extra = extraUsage, extra.isEnabled {
             checkExtraCredits(extra, toggles: toggles)
         }
+    }
+
+    /// Codex threshold alerts, driven by `CodexUsageStore`'s own refresh.
+    /// Reuses `checkSurface` wholesale so a Codex window escalates on exactly
+    /// the same rules (and the same Smart Color curve) as a Claude one.
+    /// No pacing argument: Codex pacing exists on the dashboard, but firing a
+    /// second set of pacing alerts for it would double the interruptions for
+    /// what is the same "you're burning fast" signal.
+    func evaluateCodex(
+        session: MetricSnapshot,
+        weekly: MetricSnapshot,
+        toggles: NotificationToggles
+    ) {
+        guard toggles.masterEnabled, toggles.trackCodex else { return }
+        checkSurface(.codexSession, snapshot: session, pacing: nil, toggles: toggles)
+        checkSurface(.codexWeekly, snapshot: weekly, pacing: nil, toggles: toggles)
     }
 
     // MARK: - Surface check
@@ -432,7 +463,7 @@ final class NotificationService: NotificationServiceProtocol {
 
         // 7-day buckets escalated by pace (not raw usage): rate-oriented title
         // instead of the absolute "almost capped" wording.
-        if paceDriven, level != .green, surface != .fiveHour {
+        if paceDriven, level != .green, !surface.isShortWindow {
             return NSLocalizedString("notif.title.\(surface.bodyFamily).pace", comment: "")
         }
         if surface == .fiveHour, level == .orange, let pacing {
@@ -445,7 +476,7 @@ final class NotificationService: NotificationServiceProtocol {
     private func body(for surface: Surface, level: UsageLevel, snapshot: MetricSnapshot, pacing: PacingZone?, paceDriven: Bool) -> String {
         // Pace-driven escalation on a 7-day bucket: a rate-oriented body that
         // doesn't imply a hard ceiling. No date arg (format ignores extras).
-        if paceDriven, level != .green, surface != .fiveHour {
+        if paceDriven, level != .green, !surface.isShortWindow {
             return NSLocalizedString("notif.body.\(surface.bodyFamily).pace", comment: "")
         }
         let resetsAt = snapshot.resetsAt
@@ -462,7 +493,21 @@ final class NotificationService: NotificationServiceProtocol {
             return level == .red
                 ? NSLocalizedString("notif.body.fivehour.red.fallback", comment: "")
                 : NSLocalizedString("notif.body.fivehour.orange.fallback", comment: "")
-        case .weekly, .sonnet, .fable:
+        case .codexSession:
+            // Same countdown shape as the Claude 5h, minus the pacing-flavoured
+            // variants: Codex alerts deliberately don't carry pacing copy (see
+            // `evaluateCodex`), so there is no zone to key off.
+            if let resetsAt, resetsAt.timeIntervalSinceNow > 0 {
+                let countdown = NotificationBodyFormatter.formatCountdown(from: Date(), to: resetsAt)
+                let key = level == .red
+                    ? "notif.body.codex.session.red"
+                    : "notif.body.codex.session.orange"
+                return String(format: NSLocalizedString(key, comment: ""), countdown)
+            }
+            return level == .red
+                ? NSLocalizedString("notif.body.codex.session.red.fallback", comment: "")
+                : NSLocalizedString("notif.body.codex.session.orange.fallback", comment: "")
+        case .weekly, .sonnet, .fable, .codexWeekly:
             if let resetsAt, resetsAt.timeIntervalSinceNow > 0 {
                 let dateTime = NotificationBodyFormatter.formatDateTime(resetsAt)
                 let key = level == .red
@@ -481,10 +526,10 @@ final class NotificationService: NotificationServiceProtocol {
             return NSLocalizedString("notif.body.\(surface.bodyFamily).green.fallback", comment: "")
         }
         switch surface {
-        case .fiveHour:
+        case .fiveHour, .codexSession:
             let time = NotificationBodyFormatter.formatTime(resetsAt)
-            return String(format: NSLocalizedString("notif.body.fivehour.green", comment: ""), time)
-        case .weekly, .sonnet, .fable:
+            return String(format: NSLocalizedString("notif.body.\(surface.bodyFamily).green", comment: ""), time)
+        case .weekly, .sonnet, .fable, .codexWeekly:
             let dateTime = NotificationBodyFormatter.formatDateTime(resetsAt)
             return String(format: NSLocalizedString("notif.body.\(surface.bodyFamily).green", comment: ""), dateTime)
         }

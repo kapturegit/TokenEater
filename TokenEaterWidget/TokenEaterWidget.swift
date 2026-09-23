@@ -8,7 +8,7 @@ struct TokenEaterWidget: Widget {
         StaticConfiguration(kind: kind, provider: StaticProvider()) { entry in
             UsageWidgetView(entry: entry)
         }
-        .configurationDisplayName("TokenEater")
+        .configurationDisplayName(AppBranding.displayName)
         .description(String(localized: "widget.description.usage"))
         .supportedFamilies([.systemMedium, .systemLarge])
     }
@@ -84,6 +84,20 @@ struct HistorySparklineWidget: Widget {
     }
 }
 
+/// Small + medium widget : the Codex (ChatGPT) 5h and weekly windows.
+struct CodexWidget: Widget {
+    let kind: String = "CodexWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: StaticProvider()) { entry in
+            CodexWidgetView(entry: entry)
+        }
+        .configurationDisplayName(String(localized: "widget.title.codex"))
+        .description(String(localized: "widget.description.codex"))
+        .supportedFamilies([.systemSmall, .systemMedium])
+    }
+}
+
 @main
 struct TokenEaterWidgetBundle: WidgetBundle {
     var body: some Widget {
@@ -93,5 +107,6 @@ struct TokenEaterWidgetBundle: WidgetBundle {
         PacingGraphWidget()
         HistorySparklineWidget()
         ExtraCreditsWidget()
+        CodexWidget()
     }
 }

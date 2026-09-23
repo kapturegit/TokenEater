@@ -205,6 +205,9 @@ final class SettingsStore: ObservableObject {
     var notifTrackFable: Bool {
         get { notification.trackFable } set { notification.trackFable = newValue }
     }
+    var notifTrackCodex: Bool {
+        get { notification.trackCodex } set { notification.trackCodex = newValue }
+    }
     var notifSendRecovery: Bool {
         get { notification.sendRecovery } set { notification.sendRecovery = newValue }
     }
@@ -236,6 +239,14 @@ final class SettingsStore: ObservableObject {
     // Refresh interval (seconds) - minimum 180 (3min), default 300 (5min)
     @Published var refreshInterval: Int {
         didSet { UserDefaults.standard.set(refreshInterval, forKey: "refreshInterval") }
+    }
+
+    // MARK: - Codex account
+    /// Master switch for tracking a second vendor (Codex / ChatGPT) next to
+    /// Claude. Off by default: most users track one vendor, and the Codex
+    /// surfaces stay entirely out of the way until asked for.
+    @Published var codexEnabled: Bool {
+        didSet { UserDefaults.standard.set(codexEnabled, forKey: "codexEnabled") }
     }
 
     // MARK: - Service status (outage monitoring)
@@ -371,6 +382,7 @@ final class SettingsStore: ObservableObject {
             return val >= 60 ? val : 300
         }()
         self.statusShowMenuBarBadge = SettingsDefaults.bool(key: "statusShowMenuBarBadge", default: true)
+        self.codexEnabled = UserDefaults.standard.bool(forKey: "codexEnabled")
 
         // Popover composition. Load order: new blob, else one-shot migration
         // of the legacy variant-based config (preserving what the user saw
